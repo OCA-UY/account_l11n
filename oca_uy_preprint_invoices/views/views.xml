@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<odoo>
+  <record model="report.paperformat" id="preprint_paperformat_a4">
+    <field name="name">A4 preprint</field>
+    <field name="margin_left">3</field>
+    <field name="page_height">0</field>
+    <field name="page_width">0</field>
+    <field name="format">A4</field>
+    <field name="margin_top">5</field>
+    <field name="margin_right">3</field>
+    <field name="margin_bottom">3</field>
+    <field name="header_line">False</field>
+    <field name="header_spacing">35</field>
+    <field name="dpi">90</field>
+    <field name="orientation">Portrait</field>
+  </record>
+  <template id="report_preprint_invoice_document">
+    <t t-name="oca_uy_preprint_invoices.report_preprint_invoice_document">
+      <t t-name="oca_uy_preprint_invoices.report_preprint_invoice_document">
+        <t t-set="o" t-value="o.with_context({'lang':o.partner_id.lang})"/>
+        <div class="page">
+          <div class="mitad-preimpreso" t-foreach="['via cliente','copia archivo']" t-as="nada">
+            <div style="text-align:right;padding-top:60px">
+              <table style="margin-right:0px;margin-left:auto">
+                <tr style="height:60px">
+                  <td style="width:150px">
+                    <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">Factura</span>
+                    <span t-if="o.type == 'out_invoice' and o.state == 'proforma2'">Factura Proforma (INVALIDO)</span>
+                    <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Factura borrador (INVALIDO)</span>
+                    <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Factura cancelada (INVALIDO)</span>
+                    <span t-if="o.type == 'out_refund'">Nota de cr&#xE9;dito</span>
+                    <span t-if="o.type == 'in_refund'">Nota de d&#xE9;bito (INVALIDO)</span>
+                    <span t-if="o.type == 'in_invoice'">Factura proveedor (INVALIDO)</span>
+                  </td>
+                  <td style="width:120px">
+                    <span t-field="o.number"/>
+                  </td>
+                </tr>
+                <tr style="height:30px">
+                  <td style="width:150px">
+                    <span t-raw="o.partner_id.vat[2:] or ''"/>
+                  </td>
+                  <td style="width:120px;text-align:center">
+                    <span t-raw="'NO' if o.partner_id.vat else 'SI'"/>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div>
+              <div style="display:inline-block">
+                <table>
+                  <tr style="height:35px">
+                    <td style="padding-left:170px">
+                      <span t-field="o.partner_id.name"/>
+                    </td>
+                  </tr>
+                  <tr style="height:20px">
+                    <td style="padding-left:170px">
+                      <span t-raw="o.partner_id.street + (' ' + o.partner_id.street2 if o.partner_id.street2 else '') + (', ' + o.partner_id.city if o.partner_id.city else '') + (' ' + o.partner_id.zip if o.partner_id.zip else '') + (', ' + o.partner_id.country_id.name if o.partner_id.country_id else '')"/>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div style="margin-right:35px;display:inline-block;font-size:1.3em;word-spacing:33px;padding-top:30px" class="pull-right">
+                <span style="width:200px;" t-field="o.partner_id.phone"/>
+                <span style="text-align:center;width:150px;" t-field="o.date_invoice" t-field-options="{&quot;format&quot;:&quot;d MM yy&quot;}"/>
+              </div>
+            </div>
+            <div style="height:240px;margin-top:50px">
+              <table style="margin-left:55px">
+                <tr t-foreach="o.invoice_line_ids" t-as="l">
+                  <td class="text-right" style="width: 40px">
+                    <span t-raw="int(l.quantity)"/>
+                  </td>
+                  <td style="width: 570px; padding-left:50px">
+                    <span t-field="l.name"/>
+                  </td>
+                  <td class="text-right" style="width: 80px">
+                    <span t-field="l.price_unit"/>
+                  </td>
+                  <td class="text-right" style="width: 70px">
+                    <span t-field="l.price_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="row">
+              <div class="pull-right">
+                <table style="margin-right:50px;margin-top:15px">
+                  <tr style="height:30px">
+                    <td class="text-right">
+                      <span t-field="o.amount_untaxed" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                    </td>
+                  </tr>
+                  <t t-foreach="o._get_tax_amount_by_group()" t-as="amount_by_group">
+                    <tr style="height:30px">
+                      <td class="text-right">
+                        <span t-esc="amount_by_group[1]"/>
+                      </td>
+                    </tr>
+                  </t>
+                  <tr style="height:30px">
+                    <td class="text-right">
+                      <span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <p t-if="o.fiscal_position_id.note">
+              <strong>Fiscal Position Remark:</strong>
+              <span t-field="o.fiscal_position_id.note"/>
+            </p>
+            <t t-if="nada == 'via cliente'">
+              <div style="height:55px">.</div>
+            </t>
+          </div>
+        </div>
+      </t>
+    </t>
+  </template>
+  <template id="report_invoices">
+    <t t-call="report.html_container">
+      <t t-foreach="docs" t-as="o">
+        <t t-call="oca_uy_preprint_invoices.report_preprint_invoice_document" t-lang="o.partner_id.lang"/>
+      </t>
+    </t>
+  </template>
+  <report id="invoice_preprints" model="account.invoice" string="Preimpreso" report_type="qweb-pdf" name="oca_uy_preprint_invoices.report_invoices" file="oca_uy_preprint_invoices.preprint_invoice" attachment_use="True" attachment="(object.state in ('open','paid')) and ('INV'+(object.number or '').replace('/','')+'.pdf')" paperformat="preprint_paperformat_a4"/>
+</odoo>

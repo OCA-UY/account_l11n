@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_oca_uy_partner_oca_uy_partner,oca_uy_partner.oca_uy_partner,model_oca_uy_partner_oca_uy_partner,,1,0,0,0
