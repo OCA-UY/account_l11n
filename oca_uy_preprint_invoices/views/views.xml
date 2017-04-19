@@ -38,7 +38,7 @@
                 </tr>
                 <tr style="height:30px">
                   <td style="width:150px">
-                    <span t-raw="o.partner_id.vat[2:] or ''"/>
+                    <span t-raw="o.partner_id.vat[2:] if o.partner_id else ''"/>
                   </td>
                   <td style="width:120px;text-align:center">
                     <span t-raw="'NO' if o.partner_id.vat else 'SI'"/>
